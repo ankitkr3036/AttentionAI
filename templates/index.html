@@ -1,0 +1,623 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="theme-color" content="#090b18">
+
+    <meta name="description"
+          content="AttentionAI - Real-time AI-powered focus and attention monitoring dashboard.">
+
+    <title>AttentionAI | AI Focus Monitor</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+<div class="shell">
+
+    <!-- HEADER -->
+
+    <header class="topbar">
+
+        <div class="brand">
+
+            <div class="brand-mark">◎</div>
+
+            <div>
+                <strong>AttentionAI</strong>
+
+                <span>REAL-TIME FOCUS MONITOR</span>
+            </div>
+
+        </div>
+
+        <div class="camera-state">
+
+            <i id="cameraDot"></i>
+
+            <span id="cameraLabel">
+                Camera idle
+            </span>
+
+        </div>
+
+    </header>
+
+
+    <main>
+
+        <!-- INTRO SECTION -->
+
+        <section class="intro">
+
+            <div>
+
+                <p class="eyebrow">
+                    YOUR PERSONAL FOCUS SPACE
+                </p>
+
+                <h1>
+                    Stay present.
+                    <br>
+                    <em>Stay in flow.</em>
+                </h1>
+
+                <p class="sub">
+                    An AI-powered attention monitoring companion
+                    that analyzes facial landmarks, eye movement
+                    and head orientation in real time.
+                </p>
+
+            </div>
+
+
+            <!-- SESSION BUTTONS -->
+
+            <div class="session-controls">
+
+                <button class="btn primary"
+                        id="startBtn">
+
+                    ▶ Start session
+
+                </button>
+
+
+                <button class="btn secondary"
+                        id="stopBtn"
+                        disabled>
+
+                    ■ Stop
+
+                </button>
+
+
+                <button class="btn icon-btn"
+                        id="resetBtn"
+                        title="Reset session">
+
+                    ↻
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- ALERT BANNER -->
+
+        <div id="alertBanner"
+            class="alert-banner hidden">
+
+            <span>⚠</span>
+
+            <div>
+
+                <strong>
+                    Prolonged eye closure detected
+                </strong>
+
+                <small>
+                    Take a moment to refresh your focus.
+                </small>
+
+            </div>
+
+            <button id="dismissAlert"
+                    aria-label="Dismiss alert">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <!-- MAIN DASHBOARD -->
+
+        <section class="dashboard-grid">
+
+
+            <!-- CAMERA PANEL -->
+
+            <article class="panel camera-panel">
+
+                <div class="panel-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            LIVE MONITOR
+                        </p>
+
+                        <h2>Camera feed</h2>
+
+                    </div>
+
+
+                    <span class="live-pill">
+
+                        <i></i>
+
+                        LIVE
+
+                    </span>
+
+                </div>
+
+
+                <!-- VIDEO CONTAINER -->
+
+                <div class="video-wrap">
+
+                    <img id="videoFeed"
+                        alt="Live webcam feed. Start a session to activate the camera.">
+
+                    <div class="video-placeholder"
+                        id="videoPlaceholder">
+
+                        <div class="camera-icon">
+                            ⌁
+                        </div>
+
+                        <strong>
+                            Your camera is waiting
+                        </strong>
+
+                        <span>
+                            Start a session to begin local analysis.
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- CAMERA FOOTER -->
+
+                <div class="camera-foot">
+
+                    <span>
+                        ⌖ Facial landmarks enabled
+                    </span>
+
+                    <span>
+                        Frames stay on this device
+                    </span>
+
+                </div>
+
+            </article>
+
+
+
+            <!-- ATTENTION SCORE -->
+
+            <article class="panel score-panel">
+
+                <div class="panel-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            CURRENT SESSION
+                        </p>
+
+                        <h2>Attention score</h2>
+
+                    </div>
+
+
+                    <span class="status-pill"
+                          id="statusPill">
+
+                        IDLE
+
+                    </span>
+
+                </div>
+
+
+                <!-- SCORE CIRCLE -->
+
+                <div class="score-ring"
+                    id="scoreRing">
+
+                    <div>
+
+                        <strong id="scoreValue">
+                            --
+                        </strong>
+
+                        <span>
+                            OUT OF 100
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <p class="score-caption"
+                   id="scoreCaption">
+
+                    Start a session to see your live score.
+
+                </p>
+
+
+                <!-- SESSION METRICS -->
+
+                <div class="metric-row">
+
+                    <div>
+
+                        <span>
+                            SESSION TIME
+                        </span>
+
+                        <strong id="durationValue">
+                            00:00
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            FOCUS STREAK
+                        </span>
+
+                        <strong id="streakValue">
+                            00:00
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </article>
+
+
+
+            <!-- EYE ACTIVITY -->
+
+            <article class="panel metric-panel">
+
+                <div class="panel-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            EYE ACTIVITY
+                        </p>
+
+                        <h2>Blink tracking</h2>
+
+                    </div>
+
+                    <span class="metric-symbol">
+                        ◉
+                    </span>
+
+                </div>
+
+
+                <div class="big-metric"
+                    id="blinkValue">
+
+                    0
+
+                </div>
+
+
+                <p class="muted">
+                    Total blinks this session
+                </p>
+
+
+                <div class="mini-divider"></div>
+
+
+                <div class="detail-line">
+
+                    <span>
+                        Eye aspect ratio
+                    </span>
+
+                    <strong id="earValue">
+                        --
+                    </strong>
+
+                </div>
+
+
+                <div class="detail-line">
+
+                    <span>
+                        Eyes closed
+                    </span>
+
+                    <strong id="closedValue">
+                        0.0s
+                    </strong>
+
+                </div>
+
+            </article>
+
+
+
+            <!-- ORIENTATION -->
+
+            <article class="panel metric-panel">
+
+                <div class="panel-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            ORIENTATION
+                        </p>
+
+                        <h2>Gaze & head pose</h2>
+
+                    </div>
+
+                    <span class="metric-symbol">
+                        ⌖
+                    </span>
+
+                </div>
+
+
+                <div class="orientation">
+
+                    <span>
+                        GAZE DIRECTION
+                    </span>
+
+                    <strong id="gazeValue">
+                        Unknown
+                    </strong>
+
+                </div>
+
+
+                <div class="orientation">
+
+                    <span>
+                        HEAD ORIENTATION
+                    </span>
+
+                    <strong id="headValue">
+                        Unknown
+                    </strong>
+
+                </div>
+
+
+                <p class="hint">
+
+                    Directional estimates are approximate
+                    and may need personal calibration.
+
+                </p>
+
+            </article>
+
+        </section>
+
+
+
+        <!-- ANALYTICS SECTION -->
+
+        <section class="lower-grid">
+
+
+            <!-- ATTENTION CHART -->
+
+            <article class="panel chart-panel">
+
+                <div class="panel-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            SESSION ANALYTICS
+                        </p>
+
+                        <h2>Attention timeline</h2>
+
+                    </div>
+
+
+                    <span class="chart-key">
+
+                        <i></i>
+
+                        Score
+
+                    </span>
+
+                </div>
+
+
+                <div class="chart-wrap">
+
+                    <canvas id="attentionChart"></canvas>
+
+                </div>
+
+            </article>
+
+
+
+            <!-- SESSION HISTORY -->
+
+            <article class="panel history-panel">
+
+                <div class="panel-heading">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            YOUR ACTIVITY
+                        </p>
+
+                        <h2>Recent sessions</h2>
+
+                    </div>
+
+
+                    <button class="text-btn"
+                            id="clearHistoryBtn">
+
+                        Clear history
+
+                    </button>
+
+                </div>
+
+
+                <div id="historyList"
+                    class="history-list">
+
+                    <p class="empty">
+                        No sessions saved yet.
+                    </p>
+
+                </div>
+
+
+                <a class="export-link"
+                  href="/export.csv">
+
+                    ↓ Export session data (CSV)
+
+                </a>
+
+            </article>
+
+        </section>
+
+
+
+        <!-- SETTINGS -->
+
+        <section class="panel settings-panel">
+
+            <div>
+
+                <p class="eyebrow">
+                    PREFERENCES
+                </p>
+
+                <h2>Alert settings</h2>
+
+                <p class="muted">
+
+                    Audio alerts are optional.
+                    Your browser may require a click
+                    before audio can play.
+
+                </p>
+
+            </div>
+
+
+            <label class="toggle">
+
+                <input type="checkbox"
+                      id="muteToggle"
+                      checked>
+
+                <span class="toggle-track"></span>
+
+                <span>
+                    Mute audio alerts
+                </span>
+
+            </label>
+
+        </section>
+
+
+
+        <!-- FOOTER -->
+
+        <footer>
+
+            <strong>
+                AttentionAI
+            </strong>
+
+            <span>
+                Educational prototype · Not a medical
+                or scientifically validated measure
+                of concentration.
+            </span>
+
+            <span>
+                Webcam images and video are not saved.
+            </span>
+
+        </footer>
+
+    </main>
+
+</div>
+
+
+<!-- JAVASCRIPT -->
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+
+</html>
